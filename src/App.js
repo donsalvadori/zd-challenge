@@ -1,10 +1,10 @@
 import React, { Component } from "react";
+import AddTask from './AddTask';
+import Checkbox from './Checkbox';
 
 const restfulAPI = "https://jsonplaceholder.typicode.com/todos";
 
-const Checkbox = props => (
-  <input type="checkbox" {...props} />
-)
+
 
 class App extends Component {
   constructor(props) {
@@ -96,10 +96,7 @@ class App extends Component {
 
     return (
       <div className="main">
-        <div>
-          Add Task: <input id="newTask" />
-          <button onClick={this.addTask}>Add</button>
-        </div>
+        <AddTask onClick={this.addTask}/>
         <table>
           <thead>
             <tr>
@@ -121,15 +118,15 @@ class App extends Component {
                     <Checkbox
                       checked={task.completed}
                       onChange={(e) => this.toggleCompleteTask(task.id, e)}
-                      />
+                    />
                   )}
                 </td>
                 <td>{task.id}</td>
-                <td className="strikethrough">{task.title}</td>
+                <td>{task.title}</td>
               </tr>
-            ))}
-          </tbody>
-        </table>
+          ))}
+        </tbody>       
+       </table>
       </div>
     );
   }
