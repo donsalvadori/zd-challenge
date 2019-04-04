@@ -2,68 +2,50 @@ import React, { Component } from "react";
 
 const restfulAPI = "https://jsonplaceholder.typicode.com/todos";
 
+const Checkbox = props => (
+  <input type="checkbox" {...props} />
+)
+
 class App extends Component {
   constructor(props) {
-    this.state = { filter: "id", tasks: [] };
+    super(props)
+    this.state = { filter: "id", tasks: []};
   }
 
-  getTasks = () => {
+  componentDidMount() {
     fetch(`${restfulAPI}`)
       .then(response => response.json())
       .then(tasks => this.setState({ tasks }));
-  };
+  }
 
-  uncompleteTask = id => {
-    fetch(`${restfulAPI}/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        completed: false
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8"
-      }
-    })
-      .then(response => response.json())
-      .then(json => {
-        const newTasks = [];
-        for (let i = 0; i < this.tasks.length; i++) {
-          newTasks.push(
-            json.id === this.state.tasks[i].id
-              ? { ...this.state.tasks[i], completed: false }
+  toggleCompleteTask = (id, e) => {
+    const task = this.state.tasks.find(task => task.id === id);
+    if (!this.state.tasks) return;
+
+    let newTasks = [];
+        for (let i = 0; i < this.state.tasks.length; i++) {
+          newTasks = newTasks.concat(
+            id === this.state.tasks[i].id
+              ? { ...this.state.tasks[i], completed: !task.completed }
               : this.state.tasks[i]
           );
         }
         this.setState({
           tasks: newTasks
         });
-      });
-  };
 
-  completeTask = id => {
     fetch(`${restfulAPI}/${id}`, {
       method: "PATCH",
       body: JSON.stringify({
-        completed: true
+        completed: !task.completed
       }),
-      headers: {
+    headers: {
         "Content-type": "application/json; charset=UTF-8"
       }
     })
-      .then(response => response.json())
-      .then(json => {
-        const newTasks = [];
-        for (let i = 0; i < this.tasks.length; i++) {
-          newTasks.push(
-            json.id === this.state.tasks[i].id
-              ? { ...this.state.tasks[i], completed: false }
-              : this.state.tasks[i]
-          );
-        }
-        this.setState({
-          tasks: newTasks
-        });
-      });
-  };
+    .then(response => response.json())
+    .then(json => console.log(json));
+  }
 
   getSortedTasks = () => {
     return this.state.tasks.sort((a, b) => {
@@ -75,19 +57,19 @@ class App extends Component {
         return a.completed ? -1 : 1;
       }
 
-      if (this.state.filter === "title") return 1;
+      if (this.state.filter === "title") return a.title > b.title ? 1: -1;
     });
   };
 
-  setFilterCompleted() {
+  setFilterCompleted = () => {
     this.setState({ filter: "completed" });
   }
 
-  setFilterId() {
+  setFilterId = () => {
     this.setState({ filter: "id" });
   }
 
-  setFilterTitle() {
+  setFilterTitle = () => {
     this.setState({ filter: "title" });
   }
 
@@ -105,11 +87,11 @@ class App extends Component {
       }
     })
       .then(response => response.json())
-      .then(json => this.setState({ tasks: this.state.tasks.concat(json) }));
+      .then(json => this.setState({ tasks: this.state.tasks.concat({ ...json, id: this.state.tasks.length + 1 }) }));
   };
 
+
   render() {
-    this.getTasks();
     const tasks = this.getSortedTasks();
 
     return (
@@ -128,20 +110,22 @@ class App extends Component {
           </thead>
           <tbody>
             {tasks.map(task => (
-              <tr>
+              <tr key={task.id}>
                 <td>
                   {task.completed ? (
-                    <input
-                      onChange={this.uncompleteTask}
-                      checked
-                      type="checkbox"
+                    <Checkbox
+                      checked={task.completed}
+                      onChange={(e) => this.toggleCompleteTask(task.id, e)}
                     />
                   ) : (
-                    <input type="checkbox" onChange={this.completeTask} />
+                    <Checkbox
+                      checked={task.completed}
+                      onChange={(e) => this.toggleCompleteTask(task.id, e)}
+                      />
                   )}
                 </td>
                 <td>{task.id}</td>
-                <td>{task.title}</td>
+                <td className="strikethrough">{task.title}</td>
               </tr>
             ))}
           </tbody>

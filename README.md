@@ -6,9 +6,9 @@
 
 Fix a few bugs, the app should be able to:
 
-- create new task
-- complete/uncomplete task
-- sort based on complete/id/title
+- create new task: DONE
+- complete/uncomplete task DONE
+- sort based on complete/id/title DONE
 
 Refactor:
 
